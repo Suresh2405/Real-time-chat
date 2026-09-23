@@ -1,6 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+let rawBaseUrl = (import.meta.env.VITE_API_URL || '/api').trim();
+if (rawBaseUrl.endsWith('/')) {
+  rawBaseUrl = rawBaseUrl.slice(0, -1);
+}
+// If user set URL like "https://backend.onrender.com" without "/api", append "/api"
+const API_BASE_URL = (rawBaseUrl.startsWith('http') && !rawBaseUrl.endsWith('/api'))
+  ? `${rawBaseUrl}/api`
+  : rawBaseUrl;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

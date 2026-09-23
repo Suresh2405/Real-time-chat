@@ -20,7 +20,17 @@ const LoginPage = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid email or password.');
+      if (!err.response) {
+        setError('Network Error: Cannot connect to backend server. Please verify VITE_API_URL in Vercel Environment Variables.');
+      } else if (typeof err.response.data?.detail === 'string') {
+        setError(err.response.data.detail);
+      } else if (Array.isArray(err.response.data?.detail)) {
+        setError(err.response.data.detail.map((d) => d.msg || d).join(', '));
+      } else if (err.response.status === 404) {
+        setError('Backend endpoint not found (404). Please ensure VITE_API_URL in Vercel points to your backend (e.g. https://your-backend.onrender.com/api).');
+      } else {
+        setError('Invalid email or password.');
+      }
     } finally {
       setLoading(false);
     }
